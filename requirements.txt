@@ -1,3 +1,5 @@
+fastapi
+uvicorn
 betfairlightweight
 psycopg2-binary
 python-dotenv

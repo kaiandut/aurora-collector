@@ -1,41 +1,72 @@
-from fastapi import FastAPI
 import os
-import psycopg2
+import tempfile
+
+from fastapi import FastAPI
 import betfairlightweight
 
 app = FastAPI()
 
-print("Aurora Booting...")
+# =========================
+# WRITE CERT FILES
+# =========================
 
-# PostgreSQL Connection
-DATABASE_URL = os.getenv("DATABASE_URL")
+crt_data = os.getenv("BETFAIR_CERT_CRT")
+key_data = os.getenv("BETFAIR_CERT_KEY")
 
-conn = psycopg2.connect(DATABASE_URL)
+crt_file = tempfile.NamedTemporaryFile(delete=False, suffix=".crt")
+key_file = tempfile.NamedTemporaryFile(delete=False, suffix=".key")
 
-print("Postgres Connected")
+crt_file.write(crt_data.encode())
+key_file.write(key_data.encode())
 
-# Betfair Client
+crt_file.close()
+key_file.close()
+
+# =========================
+# BETFAIR CLIENT
+# =========================
+
 trading = betfairlightweight.APIClient(
     username=os.getenv("BETFAIR_USERNAME"),
     password=os.getenv("BETFAIR_PASSWORD"),
     app_key=os.getenv("BETFAIR_APP_KEY"),
-    certs="./certs/"
+    certs=tempfile.gettempdir()
 )
 
-print("Betfair Client Ready")
+# =========================
+# ROOT
+# =========================
 
-
-# ROOT ENDPOINT
 @app.get("/")
-def root():
-    return {
-        "message": "Aurora Ω Online"
-    }
+def home():
+    return {"status": "Aurora API Online"}
 
+# =========================
+# HEALTH
+# =========================
 
-# HEALTH ENDPOINT
 @app.get("/health")
 def health():
-    return {
-        "status": "ok"
-    }
+    return {"status": "healthy"}
+
+# =========================
+# BETFAIR LOGIN TEST
+# =========================
+
+@app.get("/login")
+def login():
+
+    try:
+        trading.login()
+
+        return {
+            "success": True,
+            "session_token": trading.session_token
+        }
+
+    except Exception as e:
+
+        return {
+            "success": False,
+            "error": str(e)
+        }

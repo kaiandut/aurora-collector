@@ -4,20 +4,16 @@ import betfairlightweight
 
 print("Aurora Booting...")
 
-conn = psycopg2.connect(
-    host=os.getenv("PGHOST"),
-    port=os.getenv("PGPORT"),
-    dbname=os.getenv("PGDATABASE"),
-    user=os.getenv("PGUSER"),
-    password=os.getenv("PGPASSWORD")
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+conn = psycopg2.connect(DATABASE_URL)
 
 print("Postgres Connected")
 
 trading = betfairlightweight.APIClient(
-    username=os.getenv("BF_USERNAME"),
-    password=os.getenv("BF_PASSWORD"),
-    app_key=os.getenv("BF_APP_KEY"),
+    username=os.getenv("BETFAIR_USERNAME"),
+    password=os.getenv("BETFAIR_PASSWORD"),
+    app_key=os.getenv("BETFAIR_APP_KEY"),
     certs="./certs/"
 )
 

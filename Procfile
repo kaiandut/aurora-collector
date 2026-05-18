@@ -1,1 +1,1 @@
-worker: python collector.py
+web: uvicorn collector:app --host 0.0.0.0 --port $PORT

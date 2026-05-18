@@ -1,6 +1,4 @@
 import os
-import tempfile
-
 from fastapi import FastAPI
 import betfairlightweight
 
@@ -36,7 +34,7 @@ trading = betfairlightweight.APIClient(
 # =========================
 # ROOT
 # =========================
-s
+
 @app.get("/")
 def home():
     return {"status": "Aurora API Online"}

@@ -13,14 +13,14 @@ app = FastAPI()
 crt_data = os.getenv("BETFAIR_CERT_CRT")
 key_data = os.getenv("BETFAIR_CERT_KEY")
 
-crt_file = tempfile.NamedTemporaryFile(delete=False, suffix=".crt")
-key_file = tempfile.NamedTemporaryFile(delete=False, suffix=".key")
+crt_path = "/tmp/client-2048.crt"
+key_path = "/tmp/client-2048.key"
 
-crt_file.write(crt_data.encode())
-key_file.write(key_data.encode())
+with open(crt_path, "w") as f:
+    f.write(crt_data)
 
-crt_file.close()
-key_file.close()
+with open(key_path, "w") as f:
+    f.write(key_data)
 
 # =========================
 # BETFAIR CLIENT
@@ -30,7 +30,7 @@ trading = betfairlightweight.APIClient(
     username=os.getenv("BETFAIR_USERNAME"),
     password=os.getenv("BETFAIR_PASSWORD"),
     app_key=os.getenv("BETFAIR_APP_KEY"),
-    certs=tempfile.gettempdir()
+    certs="/tmp"
 )
 
 # =========================
@@ -50,13 +50,14 @@ def health():
     return {"status": "healthy"}
 
 # =========================
-# BETFAIR LOGIN TEST
+# LOGIN TEST
 # =========================
 
 @app.get("/login")
 def login():
 
     try:
+
         trading.login()
 
         return {
